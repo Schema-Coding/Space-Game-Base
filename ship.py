@@ -25,12 +25,16 @@ class Ship:
 
     def update(self):
         if self.is_moving_left:
-            #print("moving left")
-            self.rect.x -= 1
+            if self.rect.left > self.screen_rect.left:
+                self.rect.x -= self.game.settings.ship_speed
         if self.is_moving_right:
             #print("moving right")
             self.rect.x += 1
             
+=======
+            if self.rect.right < self.screen_rect.right:
+                self.rect.x += self.game.settings.ship_speed
+>>>>>>> Stashed changes
 
     def blitme(self):
         """Draw the ship at the current location"""

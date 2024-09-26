@@ -41,10 +41,9 @@ class NotSpaceInvaders:
     def _check_events(self):
         """Respond to keypresses and mouse events"""
         for event in pygame.event.get():
+            # Exit Event
             if event.type == pygame.QUIT:
                 sys.exit()
-            #print("Is ship moving?" + str(self.ship.is_moving_left))
-            #print("Is ship moving?" + str(self.ship.is_moving_right))
             
             # Keydown Events
             if self._check_keydown_events(event, self.settings.move_left_keybinding):
@@ -54,6 +53,7 @@ class NotSpaceInvaders:
                 self.ship.is_moving_right = True
             
             if self._check_keydown_events(event, self.settings.fire_bullet_keybinding):
+                self._fire_bullet()
                 pygame.time.set_timer(self.ship.BULLET_EVENT,  1000 // self.settings.bullet_fire_rate)
 
             # Keyup Events
@@ -66,6 +66,7 @@ class NotSpaceInvaders:
             if self._check_keyup_events(event, self.settings.fire_bullet_keybinding):
                 pygame.time.set_timer(self.ship.BULLET_EVENT, 0)
 
+            # User Events
             if event.type == self.ship.BULLET_EVENT:
                 self._fire_bullet()
 
@@ -73,14 +74,12 @@ class NotSpaceInvaders:
         if event.type == pygame.KEYDOWN:
             key_events = [event.key == key for key in keybinding.keys]
             if any(key_events):
-                #print("Key pressed: " + str(event.key))
                 return True
             
     def _check_keyup_events(self, event, keybinding):
         if event.type == pygame.KEYUP:
             key_events = [event.key == key for key in keybinding.keys]
             if any(key_events):
-                #print("Key depressed: " + str(event.key))
                 return True
             
     def _fire_bullet(self):

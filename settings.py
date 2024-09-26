@@ -14,8 +14,15 @@ class Settings:
         self.move_right_keybinding = Keybinding([pygame.K_d, pygame.K_RIGHT])
         self.fire_bullet_keybinding = Keybinding([pygame.K_SPACE])
 
+        # Ship Settings
+        self.ship_speed = 3
+
         # Bullet Settings
+<<<<<<< Updated upstream
         self.bullet_fire_rate = 6 # per second
+=======
+        self.bullet_fire_rate = 4 # per second
+>>>>>>> Stashed changes
         self.bullet_speed = 2.0
         self.bullet_width = 3
         self.bullet_height = 10
