@@ -15,30 +15,20 @@ class Ship:
 
         # Start each new ship at the bottom middle of screen
         self.rect.midbottom = self.screen_rect.midbottom
+        self.rect.y -= 10
 
         # Movement Flags
         self.is_moving_left = False
         self.is_moving_right = False
-
-        # Bullets
-        self.BULLET_EVENT = pygame.USEREVENT + 1
 
     def update(self):
         if self.is_moving_left:
             if self.rect.left > self.screen_rect.left:
                 self.rect.x -= self.game.settings.ship_speed
         if self.is_moving_right:
-            #print("moving right")
-            self.rect.x += 1
-            
-=======
             if self.rect.right < self.screen_rect.right:
                 self.rect.x += self.game.settings.ship_speed
->>>>>>> Stashed changes
 
     def blitme(self):
         """Draw the ship at the current location"""
         self.screen.blit(self.image, self.rect)
-
-
-

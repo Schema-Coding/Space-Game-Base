@@ -1,28 +1,34 @@
 import sys
-
 import pygame
+
 from settings import Settings
 from ship import Ship
 from bullet import Bullet
 
 class NotSpaceInvaders:
     """Totally *not* a reskinned version of Space Invaders.
-        Also, this class manages all game assets and behavior. Just FYI.
+       Also, this class manages all game assets and behavior. Just FYI.
     """
 
     def __init__(self):
         """Define what happens when the game starts, and also create game resources."""
-        pygame.init()
         self.settings = Settings()
 
+        # Create Pygame Objects
+        pygame.init()
         self.screen = pygame.display.set_mode((self.settings.screen_width, self.settings.screen_height))
         pygame.display.set_caption("Definitely NOT Space Invaders")
-        self.ship = Ship(self)
-        self.bullets = pygame.sprite.Group()
         self.clock = pygame.time.Clock()
 
+        # Create Game Objects
+        self.ship = Ship(self)
+        self.bullets = pygame.sprite.Group()
+
+        # Create User Event Types
+        self.BULLET_EVENT = pygame.USEREVENT + 1
+
     def run_game(self):
-        """Here's the loop that contains the functions that runs every frame of our game."""
+        """Here's the main loop containing all functions that run every frame of our game."""
         while True:
             self._check_events()
             self._draw_frame()
@@ -31,6 +37,7 @@ class NotSpaceInvaders:
             self.clock.tick(self.settings.max_fps)
 
     def _draw_frame(self):
+        """Draw all objects to the screen in their current position"""
         self.screen.fill(self.settings.background_color)
         self.ship.blitme()
         for bullet in self.bullets.sprites():
@@ -54,7 +61,7 @@ class NotSpaceInvaders:
             
             if self._check_keydown_events(event, self.settings.fire_bullet_keybinding):
                 self._fire_bullet()
-                pygame.time.set_timer(self.ship.BULLET_EVENT,  1000 // self.settings.bullet_fire_rate)
+                pygame.time.set_timer(self.BULLET_EVENT,  1000 // self.settings.bullet_fire_rate)
 
             # Keyup Events
             if self._check_keyup_events(event, self.settings.move_left_keybinding):
@@ -64,19 +71,21 @@ class NotSpaceInvaders:
                 self.ship.is_moving_right = False
 
             if self._check_keyup_events(event, self.settings.fire_bullet_keybinding):
-                pygame.time.set_timer(self.ship.BULLET_EVENT, 0)
+                pygame.time.set_timer(self.BULLET_EVENT, 0)
 
             # User Events
-            if event.type == self.ship.BULLET_EVENT:
+            if event.type == self.BULLET_EVENT:
                 self._fire_bullet()
 
     def _check_keydown_events(self, event, keybinding):
+        """Returns true if specified keys are pressed"""
         if event.type == pygame.KEYDOWN:
             key_events = [event.key == key for key in keybinding.keys]
             if any(key_events):
                 return True
             
     def _check_keyup_events(self, event, keybinding):
+        """Returns true if specified keys are unpressed"""
         if event.type == pygame.KEYUP:
             key_events = [event.key == key for key in keybinding.keys]
             if any(key_events):
