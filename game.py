@@ -36,6 +36,7 @@ class NotSpaceInvaders:
             self._draw_frame()
             self.bullets.update()
             self.ship.update()
+            self.armada.update()
             self.clock.tick(self.settings.max_fps)
 
     def _draw_frame(self):
