@@ -38,16 +38,17 @@ class Armada:
         self.row_gutter_height = (self.height - self.rows * self.alien_height) / self.row_gutters
 
         # Set initial position of each alien in armada
-        self._position_aliens()
-
-    def _position_aliens(self):
         alien_id = 0
         for row_index in range(0, self.rows):
             y = self.rect.y + row_index * (self.alien_height + self.row_gutter_height)
-            for column_index in range(0, self.columns):
-                self.aliens[alien_id].rect.x = self.rect.x + column_index * (self.alien_width + self.column_gutter_width)
+            for _ in range(0, self.columns):
+                self.aliens[alien_id].rect.x = self.rect.x + (alien_id % self.columns) * (self.alien_width + self.column_gutter_width)
                 self.aliens[alien_id].rect.y = y
                 alien_id += 1
+
+    def _position_aliens(self):
+        for alien in self.aliens.values():
+            alien.rect.x += self.update_value
 
     def blitme(self):
         for alien in self.aliens.values():

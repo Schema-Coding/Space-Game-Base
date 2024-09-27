@@ -34,9 +34,10 @@ class NotSpaceInvaders:
         while True:
             self._check_events()
             self._draw_frame()
+            self._check_hitboxes()
             self.bullets.update()
             self.ship.update()
-            self.armada.update()
+            self.armada.update() 
             self.clock.tick(self.settings.max_fps)
 
     def _draw_frame(self):
@@ -99,6 +100,16 @@ class NotSpaceInvaders:
         """Create a new bullet and add it to our group of bullet sprites"""
         new_bullet = Bullet(self)
         self.bullets.add(new_bullet)
+
+    def _check_hitboxes(self):
+        for bullet in self.bullets.sprites():
+            hit_aliens = bullet.rect.collidedictall(self.armada.aliens, 1)
+            if hit_aliens:
+                bullet.kill()
+                for k, v in hit_aliens:
+                    del self.armada.aliens[k]
+                
+
 
 if __name__ == '__main__':
     # Instantiate the main app class and run the game.
