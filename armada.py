@@ -15,7 +15,9 @@ class Armada:
         self.column_gutters = self.columns - 1
         self.vertical_margin = 50
         self.horizontal_margin = 100
-        self.update_value = 1
+        self.fleet_size = self.rows * self.columns
+        self.speed = 1
+        self.max_speed = 20
 
         # Calculate Armada Dimensions
         
@@ -27,7 +29,7 @@ class Armada:
         self.rect = pygame.rect.Rect(self.x, self.y, self.width, self.height)
 
         # Create Dictionary of Aliens
-        self.aliens = { i: Alien([0, 0], game) for i in range(0, self.rows * self.columns) }
+        self.aliens = { i: Alien([0, 0], game) for i in range(0, self.fleet_size) }
 
         # Get dimensions of one alien
         self.alien_width = self.aliens[0].rect.width
@@ -48,7 +50,7 @@ class Armada:
 
     def _position_aliens(self):
         for alien in self.aliens.values():
-            alien.rect.x += self.update_value
+            alien.rect.x += self.speed
 
     def blitme(self):
         for alien in self.aliens.values():
@@ -56,6 +58,24 @@ class Armada:
 
     def update(self):
         if self.rect.x <= 0 or (self.rect.x + self.rect.width) >= self.screen_rect.right:
-            self.update_value = -self.update_value
-        self.rect.x += self.update_value
+            self.speed = -self.speed
+        self.rect.x += self.speed
         self._position_aliens()
+
+    def resize(self):
+        self.fleet_size -= 1
+        if self.fleet_size == 0:
+            return
+        new_left = min([alien.rect.left for alien in self.aliens.values()])
+        new_right = max([alien.rect.right for alien in self.aliens.values()])
+        new_width = new_right - new_left
+        self.rect.update(new_left, self.rect.y, new_width, self.rect.height)
+        try:
+            new_speed = self.max_speed / self.fleet_size
+        except(ZeroDivisionError):
+            print("You win! YAYAYAYAYAY!")
+            return
+        if self.speed < 0:
+            self.speed = new_speed
+        if self.speed > 0:
+            self.speed = new_speed

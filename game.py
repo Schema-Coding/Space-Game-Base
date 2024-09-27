@@ -106,10 +106,10 @@ class NotSpaceInvaders:
             hit_aliens = bullet.rect.collidedictall(self.armada.aliens, 1)
             if hit_aliens:
                 bullet.kill()
-                for k, v in hit_aliens:
+                for k, _ in hit_aliens:
                     del self.armada.aliens[k]
-                
-
+                    self.armada.resize()
+                    
 
 if __name__ == '__main__':
     # Instantiate the main app class and run the game.
