@@ -4,6 +4,7 @@ import pygame
 from settings import Settings
 from ship import Ship
 from bullet import Bullet
+from armada import Armada
 
 class NotSpaceInvaders:
     """Totally *not* a reskinned version of Space Invaders.
@@ -23,6 +24,7 @@ class NotSpaceInvaders:
         # Create Game Objects
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
+        self.armada = Armada(self)
 
         # Create User Event Types
         self.BULLET_EVENT = pygame.USEREVENT + 1
@@ -40,6 +42,7 @@ class NotSpaceInvaders:
         """Draw all objects to the screen in their current position"""
         self.screen.fill(self.settings.background_color)
         self.ship.blitme()
+        self.armada.blitme()
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
         # Make the most-recently-drawn scene visible (Draw frame to screen)
