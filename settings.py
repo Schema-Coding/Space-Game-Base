@@ -18,7 +18,7 @@ class Settings:
         self.ship_speed = 3
 
         # Bullet Settings
-        self.bullet_fire_rate = 4 # per second
+        self.bullet_fire_rate = .5 # per second
         self.bullet_speed = 2.0
         self.bullet_width = 3
         self.bullet_height = 10

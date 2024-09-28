@@ -48,34 +48,36 @@ class Armada:
                 self.aliens[alien_id].rect.y = y
                 alien_id += 1
 
-    def _position_aliens(self):
+    def _position_aliens(self, change_direction=False):
+        y = 0
+        if change_direction:
+            self.speed = -self.speed
+            y = 2
         for alien in self.aliens.values():
             alien.rect.x += self.speed
+            alien.rect.y += y
 
     def blitme(self):
         for alien in self.aliens.values():
             alien.blitme()
 
     def update(self):
-        if self.rect.x <= 0 or (self.rect.x + self.rect.width) >= self.screen_rect.right:
-            self.speed = -self.speed
         self.rect.x += self.speed
-        self._position_aliens()
+        if self.rect.left <= self.screen_rect.left or self.rect.right >= self.screen_rect.right:
+            self._position_aliens(True)
+        else:
+            self._position_aliens()
+        
 
     def resize(self):
-        self.fleet_size -= 1
-        if self.fleet_size == 0:
+        try:
+            new_speed = self.max_speed / len(self.aliens)
+        except:
+            print("Win Message:")
+            pygame.event.post(self.game.WIN_EVENT)
             return
         new_left = min([alien.rect.left for alien in self.aliens.values()])
         new_right = max([alien.rect.right for alien in self.aliens.values()])
         new_width = new_right - new_left
         self.rect.update(new_left, self.rect.y, new_width, self.rect.height)
-        try:
-            new_speed = self.max_speed / self.fleet_size
-        except(ZeroDivisionError):
-            print("You win! YAYAYAYAYAY!")
-            return
-        if self.speed < 0:
-            self.speed = new_speed
-        if self.speed > 0:
-            self.speed = new_speed
+        self.speed = new_speed

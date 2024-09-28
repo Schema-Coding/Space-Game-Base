@@ -1,5 +1,6 @@
 import sys
 import pygame
+import math
 
 from settings import Settings
 from ship import Ship
@@ -28,6 +29,10 @@ class NotSpaceInvaders:
 
         # Create User Event Types
         self.BULLET_EVENT = pygame.USEREVENT + 1
+        self.WIN_EVENT = self.BULLET_EVENT + 1
+
+        self.BULLET_EVENT = pygame.event.Event(self.BULLET_EVENT)
+        self.WIN_EVENT = pygame.event.Event(self.WIN_EVENT)
 
     def run_game(self):
         """Here's the main loop containing all functions that run every frame of our game."""
@@ -66,7 +71,7 @@ class NotSpaceInvaders:
             
             if self._check_keydown_events(event, self.settings.fire_bullet_keybinding):
                 self._fire_bullet()
-                pygame.time.set_timer(self.BULLET_EVENT,  1000 // self.settings.bullet_fire_rate)
+                pygame.time.set_timer(self.BULLET_EVENT,  math.floor(1000 / self.settings.bullet_fire_rate))
 
             # Keyup Events
             if self._check_keyup_events(event, self.settings.move_left_keybinding):
@@ -81,6 +86,9 @@ class NotSpaceInvaders:
             # User Events
             if event.type == self.BULLET_EVENT:
                 self._fire_bullet()
+
+            if event.type == self.WIN_EVENT:
+                print("Skibidi!")
 
     def _check_keydown_events(self, event, keybinding):
         """Returns true if specified keys are pressed"""

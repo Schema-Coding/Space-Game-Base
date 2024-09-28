@@ -10,6 +10,8 @@ class Bullet(Sprite):
         self.screen = game.screen
         self.settings = game.settings
 
+        self.screen_rect = game.screen.get_rect()
+
         self.color = self.settings.bullet_color
         self.width = self.settings.bullet_width
         self.height = self.settings.bullet_height
@@ -24,6 +26,9 @@ class Bullet(Sprite):
         """Move the bullet up the screen"""
         self.y -= self.speed
         self.rect.y = self.y
+        if self.rect.bottom == self.screen_rect.top:
+            self.kill()
+
 
     def draw_bullet(self):
         pygame.draw.rect(self.screen, self.color, self.rect)
