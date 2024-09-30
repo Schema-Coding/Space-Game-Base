@@ -28,11 +28,8 @@ class NotSpaceInvaders:
         self.armada = Armada(self)
 
         # Create User Event Types
-        self.BULLET_EVENT = pygame.USEREVENT + 1
-        self.WIN_EVENT = self.BULLET_EVENT + 1
-
-        self.BULLET_EVENT = pygame.event.Event(self.BULLET_EVENT)
-        self.WIN_EVENT = pygame.event.Event(self.WIN_EVENT)
+        self.BULLET_EVENT = pygame.event.Event(pygame.USEREVENT + 1)
+        self.WIN_EVENT = pygame.event.Event(self.BULLET_EVENT.type + 1, message="Skibidi")
 
     def run_game(self):
         """Here's the main loop containing all functions that run every frame of our game."""
@@ -84,11 +81,11 @@ class NotSpaceInvaders:
                 pygame.time.set_timer(self.BULLET_EVENT, 0)
 
             # User Events
-            if event.type == self.BULLET_EVENT:
+            if event.type == self.BULLET_EVENT.type:
                 self._fire_bullet()
 
-            if event.type == self.WIN_EVENT:
-                print("Skibidi!")
+            if event.type == self.WIN_EVENT.type:
+                print(event.message)
 
     def _check_keydown_events(self, event, keybinding):
         """Returns true if specified keys are pressed"""

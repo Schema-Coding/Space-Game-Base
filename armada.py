@@ -68,7 +68,6 @@ class Armada:
         else:
             self._position_aliens()
         
-
     def resize(self):
         try:
             new_speed = self.max_speed / len(self.aliens)
