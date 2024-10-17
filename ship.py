@@ -10,7 +10,7 @@ class Ship:
         self.screen_rect = game.screen.get_rect()
         self.game = game
 
-        self.image = pygame.image.load('assets/my_spaceship_small.png')
+        self.image = pygame.image.load('assets/dog_ship.png')
         self.rect = self.image.get_rect()
 
         # Start each new ship at the bottom middle of screen
@@ -20,13 +20,14 @@ class Ship:
         self.is_moving_right = False
 
     def update(self):
-        if self.is_moving_left:
-            #print("moving left")
-            self.rect.x -= 1
-        if self.is_moving_right:
-            #print("moving right")
-            self.rect.x += 1
+        if self.is_moving_left and self.rect.left > self.screen_rect.left:
+            self.rect.x -= self.game.settings.ship_speed
+        if self.is_moving_right and self.rect.right < self.screen_rect.right:
+            self.rect.x += self.game.settings.ship_speed
 
     def blitme(self):
         """Draw the ship at the current location"""
         self.screen.blit(self.image, self.rect)
+
+
+

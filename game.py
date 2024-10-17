@@ -4,6 +4,7 @@ import pygame
 from settings import Settings
 from ship import Ship
 from bullet import Bullet
+from alien import Alien
 
 class NotSpaceInvaders:
     """Totally *not* a reskinned version of Space Invaders.
@@ -18,6 +19,7 @@ class NotSpaceInvaders:
         self.screen = pygame.display.set_mode((self.settings.screen_width, self.settings.screen_height))
         pygame.display.set_caption("Definitely NOT Space Invaders")
         self.ship = Ship(self)
+        self.alien = Alien(self)
         self.bullets = pygame.sprite.Group()
         self.clock = pygame.time.Clock()
         self.BULLET_EVENT = pygame.USEREVENT + 1
@@ -34,6 +36,7 @@ class NotSpaceInvaders:
     def _draw_frame(self):
         self.screen.fill(self.settings.background_color)
         self.ship.blitme()
+        self.alien.blitme()
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
         # Make the most-recently-drawn scene visible (Draw frame to screen)

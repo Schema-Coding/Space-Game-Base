@@ -11,14 +11,15 @@ class Bullet(Sprite):
         self.settings = game.settings
 
         self.color = self.settings.bullet_color
-        self.width = self.settings.bullet_width
-        self.height = self.settings.bullet_height
+        #self.width = self.settings.bullet_width
+        #self.height = self.settings.bullet_height
         self.speed = self.settings.bullet_speed
 
-        self.rect = pygame.Rect(0, 0, self.width, self.height)
-        self.rect.midtop = game.ship.rect.midtop
-
         self.y = float(self.rect.y)
+
+        self.image = pygame.image.load("assets/cheese_bullet.png")
+        self.rect = self.image.get_rect()
+        self.rect.midtop = game.ship.rect.midtop
 
     def update(self):
         """Move the bullet up the screen"""
@@ -26,5 +27,5 @@ class Bullet(Sprite):
         self.rect.y = self.y
 
     def draw_bullet(self):
-        pygame.draw.rect(self.screen, self.color, self.rect)
+        self.screen.blit(self.image, self.rect)
         
