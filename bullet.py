@@ -3,6 +3,8 @@ from pygame.sprite import Sprite
 
 class Bullet(Sprite):
     """A class to manage bullets fired from the ship"""
+    pygame.mixer.init()
+    sfx = pygame.mixer.Sound("assets/henry_cheese.mp3")
 
     def __init__(self, game):
         """Create a bullet object at the ship's current position."""
@@ -18,6 +20,7 @@ class Bullet(Sprite):
 
         self.image = pygame.image.load("assets/cheese_bullet.png")
         self.rect = self.image.get_rect()
+        self.image = pygame.transform.scale(self.image, (self.rect.width * .3, self.rect.height * .3))
         self.rect.midtop = game.ship.rect.midtop
         self.y = float(self.rect.y)
 

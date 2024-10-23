@@ -17,14 +17,14 @@ class NotSpaceInvaders:
         self.settings = Settings()
 
         self.screen = pygame.display.set_mode((self.settings.screen_width, self.settings.screen_height))
-        pygame.display.set_caption("Definitely NOT Space Invaders")
+        pygame.display.set_caption("Cheese Wars: Revenge of the Swiss")
         pygame.mixer.init()
         self.ship = Ship(self)
         self.alien = Alien(self)
         self.bullets = pygame.sprite.Group()
         self.clock = pygame.time.Clock()
         self.BULLET_EVENT = pygame.USEREVENT + 1
-        self.cheese_sound = pygame.mixer.Sound("assets/henry_cheese.mp3")
+        pygame.mixer.Sound("assets/nggyu.mp3").play(loops=-1)
 
     def run_game(self):
         """Here's the loop that contains the functions that runs every frame of our game."""
@@ -92,10 +92,9 @@ class NotSpaceInvaders:
     def _fire_bullet(self):
         """Create a new bullet and add it to our group of bullet sprites"""
         new_bullet = Bullet(self)
-        new_bullet.image = pygame.transform.scale(new_bullet.image, (new_bullet.rect.width * .3, new_bullet.rect.height * .3))
         self.bullets.add(new_bullet)
-        self.cheese_sound.stop()
-        self.cheese_sound.play()
+        #self.cheese_sound.stop()
+        Bullet.sfx.play()
 
 if __name__ == '__main__':
     # Instantiate the main app class and run the game.
