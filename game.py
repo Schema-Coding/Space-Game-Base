@@ -6,6 +6,7 @@ from settings import Settings
 from ship import Ship
 from bullet import Bullet
 from armada import Armada
+from hand_tracking import LeapHandler 
 
 class NotSpaceInvaders:
     """Totally *not* a reskinned version of Space Invaders.
@@ -30,6 +31,12 @@ class NotSpaceInvaders:
         # Create User Event Types
         self.BULLET_EVENT = pygame.event.Event(pygame.USEREVENT + 1)
         self.WIN_EVENT = pygame.event.Event(self.BULLET_EVENT.type + 1, message="Skibidi")
+        self.H_PINCH = pygame.event.Event(pygame.KEYDOWN, key="pinch")
+        self.H_UNPINCH = pygame.event.Event(pygame.KEYUP, key="pinch")
+
+        self.settings.fire_bullet_keybinding.keys.extend([self.H_PINCH, self.H_UNPINCH])
+
+        self.leap = LeapHandler(self.H_PINCH, self.H_UNPINCH)
 
     def run_game(self):
         """Here's the main loop containing all functions that run every frame of our game."""
@@ -58,7 +65,7 @@ class NotSpaceInvaders:
             # Exit Event
             if event.type == pygame.QUIT:
                 sys.exit()
-            
+
             # Keydown Events
             if self._check_keydown_events(event, self.settings.move_left_keybinding):
                 self.ship.is_moving_left = True
