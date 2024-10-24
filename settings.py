@@ -12,7 +12,7 @@ class Settings:
         # Keybindings
         self.move_left_keybinding = Keybinding([pygame.K_a, pygame.K_LEFT])
         self.move_right_keybinding = Keybinding([pygame.K_d, pygame.K_RIGHT])
-        self.fire_bullet_keybinding = Keybinding([pygame.K_SPACE])
+        self.fire_bullet_keybinding = Keybinding([pygame.K_SPACE, "H_PINCH"])
 
         # Ship Settings
         self.ship_speed = 3

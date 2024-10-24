@@ -26,6 +26,8 @@ class PinchingListener(leap.Listener):
     def __init__(self, pinch_event, unpinch_event):
         self.pinch_event = pinch_event
         self.unpinch_event = unpinch_event
+        self.already_pinched = False
+        self.already_unpinched = True
 
     def on_tracking_event(self, event):
         for hand in event.hands:
@@ -33,11 +35,17 @@ class PinchingListener(leap.Listener):
             index = get_fingertip_location(hand, 1)
 
             is_pinching, diff = detect_pinch(thumb, index)
-            if is_pinching:
+
+            if is_pinching and not self.already_pinched:
                 pygame.event.post(self.pinch_event)
-                print("Skibidi!")
-            else:
+                self.already_pinched = True
+                self.already_unpinched = False
+            
+            if not is_pinching and not self.already_unpinched:
                 pygame.event.post(self.unpinch_event)
+                self.already_unpinched = True
+                self.already_pinched = False
+                
                 
 
 class LeapHandler:
@@ -53,4 +61,4 @@ class LeapHandler:
     def __poll_leap_connection(self):
         with self.leap_connection.open():
             while True:
-                ...
+                pygame.time.wait(1000)

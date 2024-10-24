@@ -31,10 +31,8 @@ class NotSpaceInvaders:
         # Create User Event Types
         self.BULLET_EVENT = pygame.event.Event(pygame.USEREVENT + 1)
         self.WIN_EVENT = pygame.event.Event(self.BULLET_EVENT.type + 1, message="Skibidi")
-        self.H_PINCH = pygame.event.Event(pygame.KEYDOWN, key="pinch")
-        self.H_UNPINCH = pygame.event.Event(pygame.KEYUP, key="pinch")
-
-        self.settings.fire_bullet_keybinding.keys.extend([self.H_PINCH, self.H_UNPINCH])
+        self.H_PINCH = pygame.event.Event(pygame.KEYDOWN, key="H_PINCH")
+        self.H_UNPINCH = pygame.event.Event(pygame.KEYUP, key="H_PINCH")
 
         self.leap = LeapHandler(self.H_PINCH, self.H_UNPINCH)
 
