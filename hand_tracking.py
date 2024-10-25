@@ -1,5 +1,6 @@
 import leap
 from leap import datatypes as ldt
+from leap.events import Event
 import pygame
 from multiprocessing import Process
 from threading import Thread
@@ -45,15 +46,28 @@ class PinchingListener(leap.Listener):
                 pygame.event.post(self.unpinch_event)
                 self.already_unpinched = True
                 self.already_pinched = False
+
+class HorizontalListener(leap.Listener):
+    def on_tracking_event(self, event: Event):
+        for hand in event.hands:
+            if hand.palm.position.x > 50:
+                pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_d))
+            elif hand.palm.position.x < -50:
+                pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_a))
+            else:
+                pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_d))
+                pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_a))
                 
-                
+
 
 class LeapHandler:
     def __init__(self, pinch_event, unpinch_event):
-        self.listener = PinchingListener(pinch_event, unpinch_event)
+        self.pinch_listener = PinchingListener(pinch_event, unpinch_event)
+        self.horizontal_listener = HorizontalListener()
 
         self.leap_connection = leap.Connection()
-        self.leap_connection.add_listener(self.listener)
+        self.leap_connection.add_listener(self.pinch_listener)
+        self.leap_connection.add_listener(self.horizontal_listener)
         
         self.leap_process = Thread(target=self.__poll_leap_connection, daemon=True)
         self.leap_process.start()
