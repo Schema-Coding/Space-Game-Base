@@ -4,6 +4,7 @@ from leap.events import Event
 import pygame
 from multiprocessing import Process
 from threading import Thread
+from ship import Ship
 
 PINCH_THRESHOLD = 20
 
@@ -48,22 +49,45 @@ class PinchingListener(leap.Listener):
                 self.already_pinched = False
 
 class HorizontalListener(leap.Listener):
+    def __init__(self, game_screen: pygame.Surface, ship: Ship):
+        self.screen_rect = game_screen.get_rect()
+        self.max = 200
+        self.min = -200
+        self.ship = ship
+        self.leap_offset = self.screen_rect.midbottom[0]
+
+        
+
     def on_tracking_event(self, event: Event):
         for hand in event.hands:
-            if hand.palm.position.x > 50:
-                pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_d))
-            elif hand.palm.position.x < -50:
-                pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_a))
-            else:
-                pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_d))
-                pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_a))
+            print(f"Current Position: {hand.palm.position.x}")
+            if hand.palm.position.x > self.max:
+                self.max = hand.palm.position.x
+            elif hand.palm.position.x < self.min:
+                self.min = hand.palm.position.x
+            elif -100 < hand.palm.position.x < 100:
+                self.max -= 1 if self.max > 200 else 0
+                self.min += 1 if self.min < -200 else 0
+            movement_factor = (self.screen_rect.right - self.leap_offset) / max(self.max, abs(self.min))
+            self.ship.rect.x = min(self.screen_rect.right - self.ship.rect.width, hand.palm.position.x * movement_factor + self.leap_offset)
+
+            print(f"Minimum Value: {self.min}")
+            print(f"Maximum Value: {self.max}")
+            print("\x1b[H\x1b[J", end="")
+            #if hand.palm.position.x > 50:
+            #    pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_d))
+            #elif hand.palm.position.x < -50:
+            #    pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_a))
+            #else:
+            #    pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_d))
+            #    pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_a))
                 
 
 
 class LeapHandler:
-    def __init__(self, pinch_event, unpinch_event):
+    def __init__(self, pinch_event, unpinch_event, game_screen, ship):
         self.pinch_listener = PinchingListener(pinch_event, unpinch_event)
-        self.horizontal_listener = HorizontalListener()
+        self.horizontal_listener = HorizontalListener(game_screen, ship)
 
         self.leap_connection = leap.Connection()
         self.leap_connection.add_listener(self.pinch_listener)

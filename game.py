@@ -34,7 +34,7 @@ class NotSpaceInvaders:
         self.H_PINCH = pygame.event.Event(pygame.KEYDOWN, key="H_PINCH")
         self.H_UNPINCH = pygame.event.Event(pygame.KEYUP, key="H_PINCH")
 
-        self.leap = LeapHandler(self.H_PINCH, self.H_UNPINCH)
+        self.leap = LeapHandler(self.H_PINCH, self.H_UNPINCH, self.screen, self.ship)
 
     def run_game(self):
         """Here's the main loop containing all functions that run every frame of our game."""
