@@ -38,6 +38,8 @@ class PinchingListener(leap.Listener):
 
             is_pinching, diff = detect_pinch(thumb, index)
 
+            print(f"Firing: {is_pinching}")
+
             if is_pinching and not self.already_pinched:
                 pygame.event.post(self.pinch_event)
                 self.already_pinched = True
