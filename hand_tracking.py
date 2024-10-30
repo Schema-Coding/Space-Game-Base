@@ -1,9 +1,8 @@
+from threading import Thread
 import leap
 from leap import datatypes as ldt
 from leap.events import Event
 import pygame
-from multiprocessing import Process
-from threading import Thread
 from ship import Ship
 
 PINCH_THRESHOLD = 20

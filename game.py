@@ -1,11 +1,13 @@
 import sys
-import pygame
 import math
+from random import randint
 
+import pygame
 from settings import Settings
 from ship import Ship
-from bullet import Bullet
+from bullet import Bullet, EnemyBullet
 from armada import Armada
+from message import Message
 from hand_tracking import LeapHandler 
 
 class NotSpaceInvaders:
@@ -26,15 +28,22 @@ class NotSpaceInvaders:
         # Create Game Objects
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
+        self.enemy_bullets = pygame.sprite.Group()
         self.armada = Armada(self)
+        self.message = Message(self)
+        self.message.text = "Let's Play."
 
         # Create User Event Types
         self.BULLET_EVENT = pygame.event.Event(pygame.USEREVENT + 1)
-        self.WIN_EVENT = pygame.event.Event(self.BULLET_EVENT.type + 1, message="Skibidi")
+        self.ENEMY_BULLET_EVENT = pygame.event.Event(self.BULLET_EVENT.type + 1)
+        self.WIN_EVENT = pygame.event.Event(self.ENEMY_BULLET_EVENT.type + 1, message="Skibidi")
+        self.LOSE_EVENT = pygame.event.Event(self.WIN_EVENT.type + 1, message="WOW! You SUCK!")
         self.H_PINCH = pygame.event.Event(pygame.KEYDOWN, key="H_PINCH")
         self.H_UNPINCH = pygame.event.Event(pygame.KEYUP, key="H_PINCH")
 
         self.leap = LeapHandler(self.H_PINCH, self.H_UNPINCH, self.screen, self.ship)
+
+        pygame.time.set_timer(self.ENEMY_BULLET_EVENT, math.floor(1000 / self.armada.bullet_rate))
 
     def run_game(self):
         """Here's the main loop containing all functions that run every frame of our game."""
@@ -43,8 +52,9 @@ class NotSpaceInvaders:
             self._draw_frame()
             self._check_hitboxes()
             self.bullets.update()
+            self.enemy_bullets.update()
             self.ship.update()
-            self.armada.update() 
+            self.armada.update()
             self.clock.tick(self.settings.max_fps)
 
     def _draw_frame(self):
@@ -54,6 +64,9 @@ class NotSpaceInvaders:
         self.armada.blitme()
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
+        for bullet in self.enemy_bullets.sprites():
+            bullet.draw_bullet()
+        self.message.blitme()
         # Make the most-recently-drawn scene visible (Draw frame to screen)
         pygame.display.flip()
 
@@ -89,8 +102,14 @@ class NotSpaceInvaders:
             if event.type == self.BULLET_EVENT.type:
                 self._fire_bullet()
 
+            if event.type == self.ENEMY_BULLET_EVENT.type:
+                self._fire_enemy_bullet()
+
             if event.type == self.WIN_EVENT.type:
-                print(event.message)
+                self.message.text = "Skibidi."
+
+            if event.type == self.LOSE_EVENT.type:
+                self.message.text = "WOW! You SUCK!"
 
     def _check_keydown_events(self, event, keybinding):
         """Returns true if specified keys are pressed"""
@@ -111,6 +130,17 @@ class NotSpaceInvaders:
         new_bullet = Bullet(self)
         self.bullets.add(new_bullet)
 
+    def _fire_enemy_bullet(self):
+        if len(self.armada.aliens) <= 1:
+            random_index = 0
+        else:
+            random_index = randint(1, len(self.armada.aliens)) - 1
+        alien_index_pool = list(self.armada.aliens.keys())
+        alien_index = alien_index_pool[random_index]
+        random_alien = self.armada.aliens[alien_index]
+        new_bullet = EnemyBullet(self, random_alien)
+        self.enemy_bullets.add(new_bullet)
+
     def _check_hitboxes(self):
         for bullet in self.bullets.sprites():
             hit_aliens = bullet.rect.collidedictall(self.armada.aliens, 1)
@@ -119,7 +149,15 @@ class NotSpaceInvaders:
                 for k, _ in hit_aliens:
                     del self.armada.aliens[k]
                     self.armada.resize()
-                    
+        
+        for bullet in self.enemy_bullets.sprites():
+            is_ship_hit = bullet.rect.colliderect(self.ship.rect)
+            if is_ship_hit:
+                bullet.kill()
+                self.ship.lives -= 1
+                if not self.ship.lives:
+                    pygame.event.post(self.LOSE_EVENT)
+                
 
 if __name__ == '__main__':
     # Instantiate the main app class and run the game.

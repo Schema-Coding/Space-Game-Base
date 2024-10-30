@@ -18,9 +18,9 @@ class Armada:
         self.fleet_size = self.rows * self.columns
         self.speed = 1
         self.max_speed = 20
+        self.bullet_rate = 5 # per second
 
         # Calculate Armada Dimensions
-        
         self.width = self.screen_rect.right - 2 * self.horizontal_margin
         self.height = self.screen_rect.bottom // 2
         self.x = self.horizontal_margin
@@ -58,8 +58,10 @@ class Armada:
             alien.rect.y += y
 
     def blitme(self):
+        #pygame.draw.rect(self.screen, (0, 255, 0), self.rect)
         for alien in self.aliens.values():
             alien.blitme()
+        
 
     def update(self):
         self.rect.x += self.speed
@@ -71,8 +73,9 @@ class Armada:
     def resize(self):
         try:
             new_speed = self.max_speed / len(self.aliens)
-        except:
+        except(ZeroDivisionError):
             print("Win Message:")
+            pygame.time.set_timer(self.game.ENEMY_BULLET_EVENT, 0)
             pygame.event.post(self.game.WIN_EVENT)
             return
         new_left = min([alien.rect.left for alien in self.aliens.values()])

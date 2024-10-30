@@ -33,3 +33,15 @@ class Bullet(Sprite):
     def draw_bullet(self):
         pygame.draw.rect(self.screen, self.color, self.rect)
         
+class EnemyBullet(Bullet):
+    def __init__(self, game, alien):
+        super().__init__(game)
+        self.color = (0, 0, 255)
+        self.rect.midbottom = alien.rect.midbottom
+        self.y = self.rect.y
+
+    def update(self):
+        self.y += self.speed
+        self.rect.y = self.y
+        if self.rect.top == self.screen_rect.bottom:
+            self.kill()

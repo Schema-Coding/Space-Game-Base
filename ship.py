@@ -9,6 +9,7 @@ class Ship:
         self.screen = game.screen
         self.screen_rect = game.screen.get_rect()
         self.game = game
+        self.lives = 5
 
         self.image = pygame.image.load('assets/my_spaceship_small.png')
         self.rect = self.image.get_rect()
