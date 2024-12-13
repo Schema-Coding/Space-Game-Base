@@ -8,7 +8,7 @@ from ship import Ship
 from bullet import Bullet, EnemyBullet
 from armada import Armada
 from message import Message
-from hand_tracking import LeapHandler 
+from hand_tracking import LeapHandler
 
 class NotSpaceInvaders:
     """Totally *not* a reskinned version of Space Invaders.
@@ -31,19 +31,31 @@ class NotSpaceInvaders:
         self.enemy_bullets = pygame.sprite.Group()
         self.armada = Armada(self)
         self.message = Message(self)
-        self.message.text = "Let's Play."
-
+        
         # Create User Event Types
-        self.BULLET_EVENT = pygame.event.Event(pygame.USEREVENT + 1)
-        self.ENEMY_BULLET_EVENT = pygame.event.Event(self.BULLET_EVENT.type + 1)
-        self.WIN_EVENT = pygame.event.Event(self.ENEMY_BULLET_EVENT.type + 1, message="Skibidi")
-        self.LOSE_EVENT = pygame.event.Event(self.WIN_EVENT.type + 1, message="WOW! You SUCK!")
+        self.LEVEL_EVENT = pygame.USEREVENT + 1
+
+        # Create Custom Events
+        self.SHIP_BULLET_EVENT = pygame.USEREVENT + 2
+        self.ENEMY_BULLET_EVENT = pygame.USEREVENT + 3
+        self.MESSAGE_TIMEOUT_EVENT = pygame.USEREVENT + 4
+        self.WIN_EVENT = pygame.event.Event(self.LEVEL_EVENT, outcome="win")
+        self.LOSE_EVENT = pygame.event.Event(self.LEVEL_EVENT, outcome="lose")
+        self.LEVEL_WARMUP_EVENT = pygame.event.Event(self.LEVEL_EVENT, outcome="")
         self.H_PINCH = pygame.event.Event(pygame.KEYDOWN, key="H_PINCH")
         self.H_UNPINCH = pygame.event.Event(pygame.KEYUP, key="H_PINCH")
+        self.SECOND_EVENT = pygame.USEREVENT + 5
 
         self.leap = LeapHandler(self.H_PINCH, self.H_UNPINCH, self.screen, self.ship)
 
+        self.block_controls()
+        self.block_enemy_fire()
         pygame.time.set_timer(self.ENEMY_BULLET_EVENT, math.floor(1000 / self.armada.bullet_rate))
+        pygame.time.set_timer(self.LEVEL_WARMUP_EVENT, 5000, 1)
+        pygame.time.set_timer(self.SECOND_EVENT, 1000)
+        self.display_message("Get Ready...", 1)
+        self.level_warmup_duration = 5
+        self.countdown = self.level_warmup_duration
 
     def run_game(self):
         """Here's the main loop containing all functions that run every frame of our game."""
@@ -76,49 +88,65 @@ class NotSpaceInvaders:
             # Exit Event
             if event.type == pygame.QUIT:
                 sys.exit()
-
             # Keydown Events
-            if self._check_keydown_events(event, self.settings.move_left_keybinding):
+            if self._check_keydown_event(event, self.settings.move_left_keybinding):
                 self.ship.is_moving_left = True
                 
-            elif self._check_keydown_events(event, self.settings.move_right_keybinding):
+            elif self._check_keydown_event(event, self.settings.move_right_keybinding):
                 self.ship.is_moving_right = True
             
-            if self._check_keydown_events(event, self.settings.fire_bullet_keybinding):
+            if self._check_keydown_event(event, self.settings.fire_bullet_keybinding):
                 self._fire_bullet()
-                pygame.time.set_timer(self.BULLET_EVENT,  math.floor(1000 / self.settings.bullet_fire_rate))
+                pygame.time.set_timer(self.SHIP_BULLET_EVENT,  math.floor(1000 / self.settings.bullet_fire_rate))
 
             # Keyup Events
-            if self._check_keyup_events(event, self.settings.move_left_keybinding):
+            if self._check_keyup_event(event, self.settings.move_left_keybinding):
                 self.ship.is_moving_left = False
 
-            if self._check_keyup_events(event, self.settings.move_right_keybinding):
+            if self._check_keyup_event(event, self.settings.move_right_keybinding):
                 self.ship.is_moving_right = False
 
-            if self._check_keyup_events(event, self.settings.fire_bullet_keybinding):
-                pygame.time.set_timer(self.BULLET_EVENT, 0)
+            if self._check_keyup_event(event, self.settings.fire_bullet_keybinding):
+                pygame.time.set_timer(self.SHIP_BULLET_EVENT, 0)
 
             # User Events
-            if event.type == self.BULLET_EVENT.type:
+            if event.type == self.SHIP_BULLET_EVENT:
                 self._fire_bullet()
-
-            if event.type == self.ENEMY_BULLET_EVENT.type:
+            if event.type == self.ENEMY_BULLET_EVENT:
                 self._fire_enemy_bullet()
 
-            if event.type == self.WIN_EVENT.type:
-                self.message.text = "Skibidi."
+            if event.type == self.LEVEL_EVENT:
+                if event.outcome == "win":
+                    self.display_message("Skibidi!")
+                if event.outcome == "lose":
+                    self.display_message("Wow, you suck!")
 
-            if event.type == self.LOSE_EVENT.type:
-                self.message.text = "WOW! You SUCK!"
+            if event.type == self.MESSAGE_TIMEOUT_EVENT:
+                self.message.text = ""
 
-    def _check_keydown_events(self, event, keybinding):
+            if event == self.LEVEL_WARMUP_EVENT:
+                self.unblock_controls()
+                self.unblock_enemy_fire()
+                print("unblocked")
+
+            if event.type == self.SECOND_EVENT:
+                if self.countdown > 0:
+                    self.display_message(str(self.countdown))
+                    self.countdown -= 1
+                else:
+                    self.display_message("Let's Play!")
+                    pygame.time.set_timer(self.SECOND_EVENT, 0)
+                    
+
+
+    def _check_keydown_event(self, event, keybinding):
         """Returns true if specified keys are pressed"""
         if event.type == pygame.KEYDOWN:
             key_events = [event.key == key for key in keybinding.keys]
             if any(key_events):
                 return True
             
-    def _check_keyup_events(self, event, keybinding):
+    def _check_keyup_event(self, event, keybinding):
         """Returns true if specified keys are unpressed"""
         if event.type == pygame.KEYUP:
             key_events = [event.key == key for key in keybinding.keys]
@@ -157,6 +185,22 @@ class NotSpaceInvaders:
                 self.ship.lives -= 1
                 if not self.ship.lives:
                     pygame.event.post(self.LOSE_EVENT)
+
+    def display_message(self, message, seconds=3):
+        self.message.text = message
+        pygame.time.set_timer(self.MESSAGE_TIMEOUT_EVENT, seconds * 1000, 1)
+
+    def block_controls(self):
+        pygame.event.set_blocked((pygame.KEYUP, pygame.KEYDOWN))
+
+    def unblock_controls(self):
+        pygame.event.set_allowed((pygame.KEYUP, pygame.KEYDOWN))
+
+    def block_enemy_fire(self):
+        pygame.event.set_blocked(self.ENEMY_BULLET_EVENT)
+    
+    def unblock_enemy_fire(self):
+        pygame.event.set_allowed(self.ENEMY_BULLET_EVENT)
                 
 
 if __name__ == '__main__':
